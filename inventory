@@ -1,0 +1,5 @@
+[node]
+#add ceph ansible admin node here
+
+[managed_nodes]
+#add managed nodes here

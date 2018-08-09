@@ -1,0 +1,21 @@
+---
+- hosts: node
+  tasks:
+  - name: show kernel.pid_max
+    command: /usr/bin/cat /proc/sys/kernel/pid_max
+  - replace:
+      path: /etc/sysctl.conf
+      regexp: '^kernel.pid_max = *[0-9]*$'
+      replace: 'kernel.pid_max = 4194303'
+  - name: Generate /etc/ssh/ RSA host key
+      shell : echo -e 'y\n'|ssh-keygen -q -t rsa -f ~/.ssh/id_rsa -C "" -N ""
+      register: output
+  - debug: var=output.stdout_lines
+  - hosts: managed_nodes
+    tasks:
+    - name: copy ssh keys into nodes 
+      command: sshpass -p redhat ssh-copy-id -o StrictHostKeyChecking=no root@managed_nodes
+    - name: user creation
+      command: adduser test
+    - name: password for users
+      shell: echo "test" | passwd --stdin test
